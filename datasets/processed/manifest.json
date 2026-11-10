@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "prepared_at": "2026-11-05T18:36:39.845838+00:00",
+  "datasets": [
+    {
+      "name": "MITRE CWE View 1000",
+      "source": "https://cwe.mitre.org/data/definitions/1000.html",
+      "source_version": "CWE 5.0 View 1000 CSV; pinned by SHA-256",
+      "license_or_terms": "MITRE CWE terms; retain attribution",
+      "source_file": "datasets/cwe/extracted/1000.csv",
+      "retrieved_at": "2026-11-05T17:25:20.811711+00:00",
+      "output_file": "datasets/processed/cwe_view_1000.jsonl",
+      "records": 956,
+      "sha256": "209e189bcfcea184a39a67a6ce90a491359661f46d8f24b744cf594b7b68ded2",
+      "note": "CWE-1000 is a view, not a weakness ID for vulnerability mapping."
+    },
+    {
+      "name": "CISA Known Exploited Vulnerabilities",
+      "source": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+      "source_version": "2026-11-05T12:38:30.198911+00:00",
+      "license_or_terms": "U.S. government work; verify source terms",
+      "source_file": "datasets/known_exploited_vulnerabilities.csv",
+      "retrieved_at": "2026-11-05T12:38:30.198911+00:00",
+      "output_file": "datasets/processed/cisa_kev.jsonl",
+      "records": 1764,
+      "sha256": "29b563985eec8f6e852d39dfe6d9805ed71cf2e6cb9ec14373181d2f6881cad3"
+    },
+    {
+      "name": "CVEfixes v1.0.0",
+      "source": "https://zenodo.org/records/4476564",
+      "source_version": "v1.0.0; CVEs through 2021-06-09",
+      "license_or_terms": "See included LICENSE.txt and dataset record",
+      "source_file": "datasets/cvefixes/CVEfixes_v1.0.0.zip",
+      "retrieved_at": "2026-11-05T17:32:39.662125+00:00",
+      "output_file": "datasets/processed/cvefixes_v1.0.0.sqlite3",
+      "sha256": "cfb45e4b138c2734eb20f97f9c83bd1a85c71f3de50858fe7a8d65bce5daf1f0",
+      "note": "Historical vulnerability/fix examples; not migration-complexity labels."
+    },
+    {
+      "name": "CVEfixes cryptographic-CWE patch subset",
+      "source": "CVEfixes v1.0.0; CWEs 310, 326, 327, 328, 330, 780",
+      "source_version": "Derived from CVEfixes v1.0.0; query in scripts/prepare_datasets.py",
+      "license_or_terms": "CC BY 4.0; retain original attribution",
+      "source_file": "datasets/processed/cvefixes_v1.0.0.sqlite3",
+      "retrieved_at": "2026-11-05T17:32:39.662125+00:00",
+      "output_file": "datasets/processed/cvefixes_crypto_subset.jsonl",
+      "records": 273,
+      "sha256": "86027738f96ebbc2e8c79b721761beb2dd131a6f592d7b5b5f6e3cec6edacb58",
+      "note": "Patch-level historical examples; never used as migration-complexity labels."
+    },
+    {
+      "name": "PQC and classical signature benchmark data",
+      "source": "https://github.com/cryptohslu/pqc-sig-bench-c",
+      "source_version": "Downloaded repository snapshot; result CSV metadata records run/library/platform",
+      "license_or_terms": "Repository code is MIT; verify benchmark data terms with authors before redistribution",
+      "source_file": "datasets/pqc_benchmarks/extracted/pqc-sig-bench-c-main/results",
+      "retrieved_at": "2026-11-05T17:26:48.938409+00:00",
+      "output_file": "datasets/processed/pqc_signature_benchmarks.jsonl",
+      "records": 9027,
+      "sha256": "d6469de9c88b34332e8a565eb59d70807fb62a9ff25e316211f2ec8a34e8b106",
+      "note": "Signature timings and sizes; no KEM benchmark or per-operation memory metric."
+    },
+    {
+      "name": "PQC signature key and signature sizes",
+      "source": "https://github.com/cryptohslu/pqc-sig-bench-c",
+      "source_version": "Downloaded repository snapshot",
+      "license_or_terms": "See repository LICENSE and citation file",
+      "source_file": "datasets/pqc_benchmarks/extracted/pqc-sig-bench-c-main/results/key_sig_sizes.csv",
+      "retrieved_at": "2026-11-05T17:26:48.938409+00:00",
+      "output_file": "datasets/processed/pqc_signature_sizes.jsonl",
+      "records": 300,
+      "sha256": "d6469de9c88b34332e8a565eb59d70807fb62a9ff25e316211f2ec8a34e8b106"
+    },
+    {
+      "name": "Custom migration-complexity annotations",
+      "source": "Project-curated; no public source dataset",
+      "source_version": "Template schema v1",
+      "license_or_terms": "Project must define permitted use for contributed annotations",
+      "source_file": "datasets/custom_annotated/migration_complexity_annotations.csv",
+      "retrieved_at": "2026-11-05T17:27:37.794889+00:00",
+      "output_file": null,
+      "records": 0,
+      "note": "Template only; populate with reviewed examples and provenance."
+    }
+  ]
+}

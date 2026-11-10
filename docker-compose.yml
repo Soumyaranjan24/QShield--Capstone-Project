@@ -1,0 +1,105 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pqc_assistant}
+      POSTGRES_USER: ${POSTGRES_USER:-pqc_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-dev-only-change-me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pqc_app} -d ${POSTGRES_DB:-pqc_assistant}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [private]
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [private]
+
+  analyzer:
+    build: ./analyzer
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://pqc_app:local-dev-only-change-me@postgres:5432/pqc_assistant}
+      REDIS_URL: redis://redis:6379/0
+      ANALYZER_SHARED_TOKEN: ${ANALYZER_SHARED_TOKEN:-local-analyzer-token-change-me}
+      UPLOAD_DIR: /app/uploads
+      DATASETS_DIR: /app/datasets
+      MODEL_ARTIFACTS_DIR: /app/model_artifacts
+    volumes:
+      - uploads:/app/uploads
+      - ./datasets:/app/datasets:ro
+      - ./model_artifacts:/app/model_artifacts:ro
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/healthz',timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+    networks: [private]
+
+  worker:
+    build: ./analyzer
+    command: celery -A app.worker.celery_app worker --loglevel=INFO
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://pqc_app:local-dev-only-change-me@postgres:5432/pqc_assistant}
+      REDIS_URL: redis://redis:6379/0
+      ANALYZER_SHARED_TOKEN: ${ANALYZER_SHARED_TOKEN:-local-analyzer-token-change-me}
+      UPLOAD_DIR: /app/uploads
+      DATASETS_DIR: /app/datasets
+      MODEL_ARTIFACTS_DIR: /app/model_artifacts
+    volumes:
+      - uploads:/app/uploads
+      - ./datasets:/app/datasets:ro
+      - ./model_artifacts:/app/model_artifacts:ro
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    networks: [private]
+
+  backend:
+    build: ./backend
+    environment:
+      PORT: 8000
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://pqc_app:local-dev-only-change-me@postgres:5432/pqc_assistant}
+      JWT_SECRET: ${JWT_SECRET:-local-jwt-secret-change-me-before-use-123456}
+      ANALYZER_URL: http://analyzer:8001
+      ANALYZER_SHARED_TOKEN: ${ANALYZER_SHARED_TOKEN:-local-analyzer-token-change-me}
+      UPLOAD_DIR: /app/uploads
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-100}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+    volumes:
+      - uploads:/app/uploads
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      analyzer: {condition: service_healthy}
+    networks: [private, edge]
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_APP_NAME: ${VITE_APP_NAME:-QShield}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000/api}
+    ports: ["127.0.0.1:5173:5173"]
+    depends_on: [backend]
+
+volumes:
+  postgres_data:
+  uploads:
+
+networks:
+  private:
+    internal: true
+  edge:
+    driver: bridge
